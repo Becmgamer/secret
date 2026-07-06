@@ -16,24 +16,30 @@
         .container { width: 100%; max-width: 600px; background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; }
         .hidden { display: none !important; }
         
+        /* LOGO TEMPORÁRIA */
         .brand-logo { position: absolute; top: 15px; left: 20px; font-size: 16px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--primary); padding-bottom: 2px; }
         .content-body { margin-top: 25px; }
         
-        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
         button { background-color: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background-color: #4338ca; }
         
+        /* ABAS */
         .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
         .tab-btn { background: none; color: #6b7280; border: none; padding: 10px; width: auto; margin: 0; cursor: pointer; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
         
+        /* RESULTADOS DA BUSCA */
         .results-box { border: 1px solid #e5e7eb; border-radius: 6px; max-height: 200px; overflow-y: auto; background: white; margin-top: -5px; }
         .result-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f3f4f6; text-decoration: none; color: var(--text); display: block; }
         .result-item:hover { background-color: #f3f4f6; color: var(--primary); }
         
+        /* GERENCIADOR LADO A LADO */
         .manage-list { margin-top: 25px; border-top: 2px dashed #e5e7eb; padding-top: 20px; }
         .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #e5e7eb; margin-bottom: 8px; border-radius: 6px; background: #f9fafb; }
         .item-text { font-size: 15px; font-weight: 600; color: var(--text); }
+        
+        /* BOTÃO DELETAR COLOCOADO CORRETAMENTE AO LADO */
         .btn-delete { background-color: var(--danger); width: auto; padding: 8px 16px; margin: 0; font-size: 14px; border-radius: 4px; }
         .btn-delete:hover { background-color: #b91c1c; }
         
@@ -51,17 +57,16 @@
         <div id="login-screen">
             <h3 style="text-align: center; margin-top: 20px;">Acesso Restrito</h3>
             <p style="text-align: center;">Insira a senha do site para acessar o conteúdo:</p>
-            <!-- ADICIONADO: evento onkeydown para detectar o Enter -->
-            <input type="password" id="site-password" placeholder="Senha do Site" onkeydown="handleSiteEnter(event)">
-            <button onclick="checkSiteLogin()">Entrar</button>
+            <input type="password" id="site-password" placeholder="Senha do Site">
+            <button type="button" onclick="checkSiteLogin()">Entrar</button>
             <p id="login-error" style="color: red; text-align: center; display: none;">Senha incorreta!</p>
         </div>
 
-        <!-- 2. CONTEÚDO PRINCIPAL -->
+        <!-- 2. CONTEÚDO PRINCIPAL (SÓ APÓS LOGIN) -->
         <div id="main-content" class="hidden">
             <div class="nav-tabs">
-                <button class="tab-btn active" id="btn-busca" onclick="switchTab('busca')">🔍 Pesquisar</button>
-                <button class="tab-btn" id="btn-admin" onclick="switchTab('admin')">📌 Aqui</button>
+                <button type="button" class="tab-btn active" id="btn-busca" onclick="switchTab('busca')">🔍 Pesquisar</button>
+                <button type="button" class="tab-btn" id="btn-admin" onclick="switchTab('admin')">📌 Aqui</button>
             </div>
 
             <!-- ABA DE PESQUISA -->
@@ -76,27 +81,28 @@
                 <div id="admin-auth">
                     <h3>Área de Gerenciamento</h3>
                     <p>Insira a senha administrativa para liberar as ferramentas:</p>
-                    <!-- ADICIONADO: evento onkeydown para detectar o Enter -->
-                    <input type="password" id="admin-password" placeholder="Senha Administrativa" onkeydown="handleAdminEnter(event)">
-                    <button onclick="checkAdminLogin()">Liberar Gerenciador</button>
+                    <input type="password" id="admin-password" placeholder="Senha Administrativa">
+                    <button type="button" onclick="checkAdminLogin()">Liberar Gerenciador</button>
                     <p id="admin-error" style="color: red; display: none;">Senha admin incorreta!</p>
                 </div>
 
+                <!-- Painel com a lista e exclusão lado a lado -->
                 <div id="admin-panel" class="hidden">
                     <div style="background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
                         <h3 style="margin-top:0;">Adicionar Novo Item</h3>
                         <input type="text" id="item-name" placeholder="Nome do Item (ex: Suco de Maçã)">
                         <input type="url" id="item-url" placeholder="Link de Redirecionamento">
-                        <button onclick="addItem()">Adicionar ao Banco de Dados</button>
+                        <button type="button" onclick="addItem()">Adicionar ao Banco de Dados</button>
                         <p id="success-msg" style="color: green; display: none; font-weight: bold;">Item adicionado com sucesso!</p>
                     </div>
 
+                    <!-- LISTA VISUAL CORRIGIDA COM BOTÃO EXCLUIR LADO A LADO -->
                     <div class="manage-list">
                         <h3>Gerenciar Itens Existentes</h3>
                         <div id="manage-items-container"></div>
                     </div>
 
-                    <button class="btn-logout" onclick="logoutAdmin()">🔒 Bloquear Aba "Aqui"</button>
+                    <button type="button" class="btn-logout" onclick="logoutAdmin()">🔒 Bloquear Aba "Aqui"</button>
                 </div>
             </div>
         </div>
@@ -104,9 +110,11 @@
 </div>
 
 <script>
+    // Configurações de Senhas
     const SENHA_DO_SITE = "1234";  
     const SENHA_DA_ABA_AQUI = "admin987"; 
 
+    // Itens que já vêm salvos por padrão
     const defaultItems = [
         { name: "Suco de Maçã", url: "https://google.com" },
         { name: "Suco de Laranja", url: "https://google.com" },
@@ -115,20 +123,7 @@
 
     let itemsDatabase = JSON.parse(localStorage.getItem('site_items')) || defaultItems;
 
-    // ADICIONADO: Função para capturar a tecla Enter na primeira tela de login
-    function handleSiteEnter(event) {
-        if (event.key === "Enter") {
-            checkSiteLogin();
-        }
-    }
-
-    // ADICIONADO: Função para capturar a tecla Enter no login da aba "Aqui"
-    function handleAdminEnter(event) {
-        if (event.key === "Enter") {
-            checkAdminLogin();
-        }
-    }
-
+    // Login Geral do Site
     function checkSiteLogin() {
         const input = document.getElementById('site-password').value;
         if (input === SENHA_DO_SITE) {
@@ -139,6 +134,7 @@
         }
     }
 
+    // Troca de Abas
     function switchTab(tab) {
         document.getElementById('btn-busca').classList.remove('active');
         document.getElementById('btn-admin').classList.remove('active');
@@ -153,10 +149,11 @@
         } else {
             document.getElementById('btn-admin').classList.add('active');
             document.getElementById('tab-admin').classList.remove('hidden');
-            renderManageItems(); 
+            renderManageItems(); // Renderiza os botões de excluir na hora do clique
         }
     }
 
+    // Login da Aba Administrativa "Aqui"
     function checkAdminLogin() {
         const input = document.getElementById('admin-password').value;
         if (input === SENHA_DA_ABA_AQUI) {
@@ -164,17 +161,19 @@
             document.getElementById('admin-panel').classList.remove('hidden');
             document.getElementById('admin-password').value = "";
             document.getElementById('admin-error').style.display = 'none';
-            renderManageItems(); 
+            renderManageItems(); // Renderiza a lista com os botões excluir lado a lado imediatamente
         } else {
             document.getElementById('admin-error').style.display = 'block';
         }
     }
 
+    // Sair do painel administrativo
     function logoutAdmin() {
         document.getElementById('admin-panel').classList.add('hidden');
         document.getElementById('admin-auth').classList.remove('hidden');
     }
 
+    // Sistema de barra de busca (Filtro por digitação)
     function filterResults() {
         const query = document.getElementById('search-input').value.toLowerCase().trim();
         const container = document.getElementById('results-container');
@@ -193,8 +192,3 @@
                 const link = document.createElement('a');
                 link.href = item.url;
                 link.target = "_blank"; 
-                link.className = "result-item";
-                link.textContent = item.name;
-                container.appendChild(link);
-            });
-        } else {
