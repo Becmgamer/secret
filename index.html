@@ -16,29 +16,28 @@
         .container { width: 100%; max-width: 600px; background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; }
         .hidden { display: none !important; }
         
-        /* LOGO TEMPORÁRIA */
+        /* LOGO TEMPORÁRIA NO CANTO SUPERIOR ESQUERDO */
         .brand-logo { position: absolute; top: 15px; left: 20px; font-size: 16px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--primary); padding-bottom: 2px; }
+        
+        /* Ajuste de espaçamento para não cobrir a logo */
         .content-body { margin-top: 25px; }
         
-        input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
         button { background-color: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background-color: #4338ca; }
         
-        /* ABAS */
         .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
         .tab-btn { background: none; color: #6b7280; border: none; padding: 10px; width: auto; margin: 0; cursor: pointer; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
         
-        /* RESULTADOS DA BUSCA */
         .results-box { border: 1px solid #e5e7eb; border-radius: 6px; max-height: 200px; overflow-y: auto; background: white; margin-top: -5px; }
         .result-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f3f4f6; text-decoration: none; color: var(--text); display: block; }
         .result-item:hover { background-color: #f3f4f6; color: var(--primary); }
         
-        /* GERENCIADOR LADO A LADO */
+        /* LISTA EXCLUSIVA DE GERENCIAMENTO */
         .manage-list { margin-top: 25px; border-top: 2px dashed #e5e7eb; padding-top: 20px; }
         .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #e5e7eb; margin-bottom: 8px; border-radius: 6px; background: #f9fafb; }
         .item-text { font-size: 15px; font-weight: 600; color: var(--text); }
-        
         .btn-delete { background-color: var(--danger); width: auto; padding: 8px 16px; margin: 0; font-size: 14px; border-radius: 4px; }
         .btn-delete:hover { background-color: #b91c1c; }
         
@@ -49,25 +48,24 @@
 <body>
 
 <div class="container">
+    <!-- Logotipo Temporário no Canto Superior -->
     <div class="brand-logo">Marca</div>
 
     <div class="content-body">
-        <!-- 1. TELA DE LOGIN DO SITE (CORRIGIDA COM FORMULÁRIO) -->
+        <!-- 1. TELA DE LOGIN DO SITE -->
         <div id="login-screen">
             <h3 style="text-align: center; margin-top: 20px;">Acesso Restrito</h3>
             <p style="text-align: center;">Insira a senha do site para acessar o conteúdo:</p>
-            <form onsubmit="checkSiteLogin(event)">
-                <input type="password" id="site-password" placeholder="Senha do Site" required>
-                <button type="submit">Entrar</button>
-            </form>
+            <input type="password" id="site-password" placeholder="Senha do Site">
+            <button onclick="checkSiteLogin()">Entrar</button>
             <p id="login-error" style="color: red; text-align: center; display: none;">Senha incorreta!</p>
         </div>
 
-        <!-- 2. CONTEÚDO PRINCIPAL (SÓ APÓS LOGIN) -->
+        <!-- 2. CONTEÚDO PRINCIPAL (SÓ APARECE APÓS LOGIN) -->
         <div id="main-content" class="hidden">
             <div class="nav-tabs">
-                <button type="button" class="tab-btn active" id="btn-busca" onclick="switchTab('busca')">🔍 Pesquisar</button>
-                <button type="button" class="tab-btn" id="btn-admin" onclick="switchTab('admin')">📌 Aqui</button>
+                <button class="tab-btn active" id="btn-busca" onclick="switchTab('busca')">🔍 Pesquisar</button>
+                <button class="tab-btn" id="btn-admin" onclick="switchTab('admin')">📌 Aqui</button>
             </div>
 
             <!-- ABA DE PESQUISA -->
@@ -77,38 +75,34 @@
                 <div id="results-container" class="results-box hidden"></div>
             </div>
 
-            <!-- ABA "AQUI" -->
+            <!-- ABA "AQUI" (GERENCIADOR PROTEGIDO) -->
             <div id="tab-admin" class="hidden">
-                <!-- FORMULÁRIO DE LOGIN DA ABA ADMIN (CORRIGIDO) -->
+                <!-- Bloqueio interno da aba -->
                 <div id="admin-auth">
                     <h3>Área de Gerenciamento</h3>
                     <p>Insira a senha administrativa para liberar as ferramentas:</p>
-                    <form onsubmit="checkAdminLogin(event)">
-                        <input type="password" id="admin-password" placeholder="Senha Administrativa" required>
-                        <button type="submit">Liberar Gerenciador</button>
-                    </form>
+                    <input type="password" id="admin-password" placeholder="Senha Administrativa">
+                    <button onclick="checkAdminLogin()">Liberar Gerenciador</button>
                     <p id="admin-error" style="color: red; display: none;">Senha admin incorreta!</p>
                 </div>
 
-                <!-- Painel com a lista e exclusão lado a lado -->
+                <!-- Painel Administrativo Completo -->
                 <div id="admin-panel" class="hidden">
                     <div style="background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
                         <h3 style="margin-top:0;">Adicionar Novo Item</h3>
-                        <form onsubmit="addItem(event)">
-                            <input type="text" id="item-name" placeholder="Nome do Item (ex: Suco de Maçã)" required>
-                            <input type="url" id="item-url" placeholder="Link de Redirecionamento" required>
-                            <button type="submit">Adicionar ao Banco de Dados</button>
-                        </form>
+                        <input type="text" id="item-name" placeholder="Nome do Item (ex: Suco de Maçã)">
+                        <input type="url" id="item-url" placeholder="Link de Redirecionamento">
+                        <button onclick="addItem()">Adicionar ao Banco de Dados</button>
                         <p id="success-msg" style="color: green; display: none; font-weight: bold;">Item adicionado com sucesso!</p>
                     </div>
 
-                    <!-- LISTA VISUAL CORRIGIDA COM BOTÃO EXCLUIR LADO A LADO -->
+                    <!-- LISTA COM TODOS OS ITENS E BOTÃO EXCLUIR AO LADO -->
                     <div class="manage-list">
                         <h3>Gerenciar Itens Existentes</h3>
                         <div id="manage-items-container"></div>
                     </div>
 
-                    <button type="button" class="btn-logout" onclick="logoutAdmin()">🔒 Bloquear Aba "Aqui"</button>
+                    <button class="btn-logout" onclick="logoutAdmin()">🔒 Bloquear Aba "Aqui"</button>
                 </div>
             </div>
         </div>
@@ -116,11 +110,11 @@
 </div>
 
 <script>
-    // Configurações de Senhas
+    // ================= CONFIGURAÇÃO DE SENHAS =================
     const SENHA_DO_SITE = "1234";  
     const SENHA_DA_ABA_AQUI = "admin987"; 
 
-    // Itens padrões
+    // Banco de dados inicial padrão
     const defaultItems = [
         { name: "Suco de Maçã", url: "https://google.com" },
         { name: "Suco de Laranja", url: "https://google.com" },
@@ -129,9 +123,8 @@
 
     let itemsDatabase = JSON.parse(localStorage.getItem('site_items')) || defaultItems;
 
-    // Login Geral do Site (Ajustado com preventDefault)
-    function checkSiteLogin(event) {
-        event.preventDefault(); // Evita que a página recarregue e quebre o JS
+    // 1. Controle de Login do Site
+    function checkSiteLogin() {
         const input = document.getElementById('site-password').value;
         if (input === SENHA_DO_SITE) {
             document.getElementById('login-screen').classList.add('hidden');
@@ -141,7 +134,7 @@
         }
     }
 
-    // Troca de Abas
+    // 2. Navegação entre as Abas
     function switchTab(tab) {
         document.getElementById('btn-busca').classList.remove('active');
         document.getElementById('btn-admin').classList.remove('active');
@@ -156,20 +149,19 @@
         } else {
             document.getElementById('btn-admin').classList.add('active');
             document.getElementById('tab-admin').classList.remove('hidden');
-            renderManageItems(); 
+            renderManageItems(); // Força a renderização imediata da lista de exclusão
         }
     }
 
-    // Login da Aba Administrativa "Aqui" (Ajustado com preventDefault)
-    function checkAdminLogin(event) {
-        event.preventDefault(); // Evita recarregamento de página
+    // 3. Controle de Login da Aba "Aqui"
+    function checkAdminLogin() {
         const input = document.getElementById('admin-password').value;
         if (input === SENHA_DA_ABA_AQUI) {
             document.getElementById('admin-auth').classList.add('hidden');
             document.getElementById('admin-panel').classList.remove('hidden');
             document.getElementById('admin-password').value = "";
             document.getElementById('admin-error').style.display = 'none';
-            renderManageItems(); 
+            renderManageItems(); // Mostra a lista assim que logar
         } else {
             document.getElementById('admin-error').style.display = 'block';
         }
@@ -180,7 +172,7 @@
         document.getElementById('admin-auth').classList.remove('hidden');
     }
 
-    // Filtro de busca
+    // 4. Sistema de Busca por digitação
     function filterResults() {
         const query = document.getElementById('search-input').value.toLowerCase().trim();
         const container = document.getElementById('results-container');
@@ -192,3 +184,11 @@
         }
 
         const filtered = itemsDatabase.filter(item => item.name.toLowerCase().includes(query));
+
+        if (filtered.length > 0) {
+            container.classList.remove('hidden');
+            filtered.forEach(item => {
+                const link = document.createElement('a');
+                link.href = item.url;
+                link.target = "_blank"; 
+                link.className = "result-item";
