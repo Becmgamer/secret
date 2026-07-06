@@ -1,201 +1,214 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Busca e Cadastro</title>
-    <style>
-        * { box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background-color: #f4f4f9; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        
-        /* Título da Marca */
-        .brand-header { text-align: center; margin-bottom: 20px; color: #333; font-size: 32px; font-weight: bold; letter-spacing: 1px; }
-        
-        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        .screen { display: none; }
-        .active { display: block; }
-        h2, h3 { color: #333; margin-top: 0; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-        button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #0056b3; }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
-        .tab-btn { background: #e9e9ed; color: #333; padding: 8px 16px; border-radius: 4px; cursor: pointer; border: none; width: auto; margin: 0; }
-        .tab-btn.active-tab { background: #007bff; color: white; }
-        .results-box { border: 1px solid #ddd; border-radius: 4px; max-height: 200px; overflow-y: auto; display: none; background: white; }
-        .result-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; text-decoration: none; color: #333; display: block; }
-        .result-item:hover { background-color: #f0f0f0; }
-        .error { color: red; font-size: 14px; display: none; }
-        .success { color: green; font-size: 14px; display: none; }
-        
-        /* Lista de gerenciamento (Editar/Excluir) */
-        .item-list { margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px; max-height: 250px; overflow-y: auto; }
-        .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .manage-item-buttons { display: flex; gap: 5px; }
-        .btn-edit { background-color: #ffc107; color: #000; width: auto; padding: 5px 10px; margin: 0; font-size: 12px; }
-        .btn-edit:hover { background-color: #e0a800; }
-        .btn-delete { background-color: #dc3545; color: white; width: auto; padding: 5px 10px; margin: 0; font-size: 12px; }
-        .btn-delete:hover { background-color: #bd2130; }
-        .edit-form-box { background: #f8f9fa; border: 1px solid #ffc107; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marca</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:#0d0d0d;
+    color:#fff;
+}
+
+header{
+    height:65px;
+    background:#161616;
+    border-bottom:1px solid #333;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    font-weight:bold;
+    letter-spacing:2px;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:25px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:#1a1a1a;
+    border:1px solid #303030;
+    border-radius:14px;
+    padding:20px;
+}
+
+.card h2{
+    margin-bottom:18px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border:none;
+    border-radius:8px;
+    background:#292929;
+    color:#fff;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#fff;
+    color:#000;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#ddd;
+}
+
+.menu{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.menu button{
+    flex:1;
+}
+
+.lista{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.item{
+    background:#242424;
+    padding:12px;
+    border-radius:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.item button{
+    width:90px;
+}
+</style>
 </head>
+
 <body>
 
-<!-- Local superior com o nome da Marca -->
-<div class="brand-header">Marca</div>
+<header>Marca</header>
 
 <div class="container">
-    <!-- 1. TELA DE LOGIN PRINCIPAL -->
-    <div id="loginScreen" class="screen active">
-        <h2>Acesso ao Sistema</h2>
-        <input type="password" id="inputMainPassword" placeholder="Digite a senha de acesso">
-        <p id="loginError" class="error">Senha incorreta!</p>
-        <button onclick="efetuarLoginPrincipal()">Entrar</button>
-    </div>
 
-    <!-- TELA DO SISTEMA (PÓS LOGIN) -->
-    <div id="systemScreen" class="screen">
-        <!-- Abas de Navegação -->
-        <div class="nav-tabs">
-            <button id="tabBusca" class="tab-btn active-tab" onclick="switchTab('busca')">Buscar</button>
-            <button id="tabAqui" class="tab-btn" onclick="switchTab('aqui')">Aqui</button>
-        </div>
-
-        <!-- 2. ABA DE BUSCA -->
-        <div id="contentBusca" class="tab-content">
-            <h2>Pesquisar Itens</h2>
-            <input type="text" id="searchInp" placeholder="Digite para buscar (ex: Suco)..." oninput="triggerSearch()">
-            <div id="resultsContainer" class="results-box"></div>
-        </div>
-
-        <!-- 3. ABA "AQUI" (PROTEGIDA POR SENHA) -->
-        <div id="contentAqui" class="tab-content" style="display: none;">
-            <h2>Área de Gerenciamento</h2>
-            
-            <!-- Validação interna da aba Aqui -->
-            <div id="aquiAuthForm">
-                <p>Confirme a senha para liberar o painel:</p>
-                <input type="password" id="inputAquiPassword" placeholder="Digite a senha de administrador">
-                <p id="aquiError" class="error">Senha incorreta!</p>
-                <button onclick="efetuarLoginAqui()">Liberar Aba</button>
-            </div>
-
-            <!-- Painel completo oculto até digitar a senha -->
-            <div id="aquiPanel" style="display: none;">
-                
-                <!-- Formulário de Edição -->
-                <div id="editFormBox" class="edit-form-box" style="display: none;">
-                    <h3>Editar Item</h3>
-                    <input type="hidden" id="editItemIndex">
-                    <input type="text" id="editItemName" placeholder="Novo nome do item">
-                    <input type="url" id="editItemUrl" placeholder="Novo link de redirecionamento">
-                    <button onclick="saveItemEdit()" style="background-color: #28a745;">Salvar Alterações</button>
-                    <button onclick="cancelItemEdit()" style="background-color: #6c757d; margin-top: 0;">Cancelar</button>
-                </div>
-
-                <!-- Formulário de Cadastro -->
-                <div id="addFormBox">
-                    <h3>Adicionar Novo Item</h3>
-                    <input type="text" id="newItemName" placeholder="Nome do item (ex: Suco de Laranja)">
-                    <input type="url" id="newItemUrl" placeholder="Link de redirecionamento (http://...)">
-                    <p id="addError" class="error">Preencha todos os campos corretamente!</p>
-                    <p id="addSuccess" class="success">Operação realizada com sucesso!</p>
-                    <button onclick="addNewItem()">Cadastrar Item</button>
-                </div>
-
-                <!-- Lista de itens cadastrados com botões de Editar e Excluir -->
-                <h3>Itens Cadastrados</h3>
-                <div id="managementItemList" class="item-list"></div>
-            </div>
-        </div>
-    </div>
+<div class="menu">
+<button>Buscar</button>
+<button>Aqui</button>
 </div>
 
-<script>
-    // Senha de acesso única para o site e aba "Aqui"
-    const ACESS_PASSWORD = "123"; 
+<div class="grid">
 
-    // MESCLADO: Carrega dados salvos anteriormente ou usa a lista inicial padrão
-    let database = JSON.parse(localStorage.getItem('site_database'));
-    
-    if (!database) {
-        database = [
-            { name: "Suco de Maçã", url: "https://google.com" },
-            { name: "Suco de Laranja", url: "https://google.com" },
-            { name: "Suco de Uva", url: "https://google.com" },
-            { name: "Bolo de Chocolate", url: "https://google.com" }
-        ];
-        salvarNoLocalStorage();
-    }
+<!-- LOGIN -->
+<div class="card">
+<h2>Login</h2>
 
-    // Função auxiliar para gravar alterações na memória do navegador
-    function salvarNoLocalStorage() {
-        localStorage.setItem('site_database', JSON.stringify(database));
-    }
+<input type="password" placeholder="Senha">
 
-    function efetuarLoginPrincipal() {
-        const campoSenha = document.getElementById('inputMainPassword').value;
-        const msgErro = document.getElementById('loginError');
-        
-        if (campoSenha === ACESS_PASSWORD) {
-            msgErro.style.display = 'none';
-            document.getElementById('loginScreen').classList.remove('active');
-            document.getElementById('systemScreen').classList.add('active');
-        } else {
-            msgErro.style.display = 'block';
-        }
-    }
+<button>Entrar</button>
 
-    function efetuarLoginAqui() {
-        const campoSenhaAqui = document.getElementById('inputAquiPassword').value;
-        const msgErroAqui = document.getElementById('aquiError');
-        
-        if (campoSenhaAqui === ACESS_PASSWORD) {
-            msgErroAqui.style.display = 'none';
-            document.getElementById('aquiAuthForm').style.display = 'none';
-            document.getElementById('aquiPanel').style.display = 'block';
-            renderManagementList(); 
-        } else {
-            msgErroAqui.style.display = 'block';
-        }
-    }
+</div>
 
-    function switchTab(tab) {
-        document.getElementById('contentBusca').style.display = tab === 'busca' ? 'block' : 'none';
-        document.getElementById('contentAqui').style.display = tab === 'aqui' ? 'block' : 'none';
-        document.getElementById('tabBusca').classList.toggle('active-tab', tab === 'busca');
-        document.getElementById('tabAqui').classList.toggle('active-tab', tab === 'aqui');
-        cancelItemEdit(); 
-    }
+<!-- BUSCAR -->
+<div class="card">
+<h2>Buscar</h2>
 
-    function triggerSearch() {
-        const query = document.getElementById('searchInp').value.toLowerCase().trim();
-        const container = document.getElementById('resultsContainer');
-        container.innerHTML = "";
+<input placeholder="Pesquisar...">
 
-        if (query === "") {
-            container.style.display = "none";
-            return;
-        }
+<div class="lista">
 
-        const filtered = database.filter(item => item.name.toLowerCase().includes(query));
+<div class="item">
+<span>Suco de Laranja</span>
+<button>Abrir</button>
+</div>
 
-        if (filtered.length > 0) {
-            filtered.forEach(item => {
-                const a = document.createElement('a');
-                a.href = item.url;
-                a.target = "_blank";
-                a.className = "result-item";
-                a.textContent = item.name;
-                container.appendChild(a);
-            });
-            container.style.display = "block";
-        } else {
-            container.style.display = "none";
-        }
-    }
+<div class="item">
+<span>Suco de Maçã</span>
+<button>Abrir</button>
+</div>
 
-    // MESCLADO: Cadastra e salva na memória
-    function addNewItem() {
-        const nameInp = document.getElementById('newItemName').value.trim();
-        const urlInp = document.getElementById('newItemUrl').value.trim();
-        const errorMsg = document.getElementById('addError');
+</div>
+
+</div>
+
+<!-- ADICIONAR -->
+<div class="card">
+<h2>Adicionar</h2>
+
+<input placeholder="Nome">
+
+<input placeholder="URL">
+
+<button>Adicionar</button>
+
+</div>
+
+<!-- EXCLUIR -->
+<div class="card">
+<h2>Excluir</h2>
+
+<div class="lista">
+
+<div class="item">
+<span>Suco de Laranja</span>
+<button>Excluir</button>
+</div>
+
+<div class="item">
+<span>Suco de Maçã</span>
+<button>Excluir</button>
+</div>
+
+</div>
+
+</div>
+
+<!-- EDITAR -->
+<div class="card">
+<h2>Editar</h2>
+
+<div class="lista">
+
+<div class="item">
+<span>Suco de Laranja</span>
+<button>Editar</button>
+</div>
+
+<div class="item">
+<span>Suco de Maçã</span>
+<button>Editar</button>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
