@@ -3,38 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Portal Privado</title>
+    <title>Marca</title>
     <style>
         :root {
             --primary: #4f46e5;
             --bg: #f3f4f6;
             --card: #ffffff;
             --text: #1f2937;
+            --danger: #ef4444;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 600px; background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .container { width: 100%; max-width: 600px; background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; }
         .hidden { display: none !important; }
+        
+        /* Identidade Visual */
+        .brand-header { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 25px; color: var(--primary); letter-spacing: 1px; }
+        
         input, select, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
         button { background-color: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background-color: #4338ca; }
+        
+        /* Abas e Navegação */
         .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
         .tab-btn { background: none; color: #6b7280; border: none; padding: 10px; width: auto; margin: 0; cursor: pointer; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
+        
+        /* Resultados da Busca */
         .results-box { border: 1px solid #e5e7eb; border-radius: 6px; max-height: 200px; overflow-y: auto; background: white; margin-top: -5px; }
         .result-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f3f4f6; text-decoration: none; color: var(--text); display: block; }
         .result-item:hover { background-color: #f3f4f6; color: var(--primary); }
+        
+        /* Lista de Gerenciamento (Exclusão) */
+        .manage-list { margin-top: 20px; border-top: 1px solid #e5e7eb; padding-top: 15px; }
+        .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid #f3f4f6; margin-bottom: 5px; border-radius: 6px; background: #fafafa; }
+        .manage-item span { font-size: 14px; font-weight: 500; word-break: break-all; padding-right: 10px; }
+        .btn-delete { background-color: var(--danger); width: auto; padding: 6px 12px; margin: 0; font-size: 13px; }
+        .btn-delete:hover { background-color: #b91c1c; }
+        .btn-logout { background-color: #6b7280; font-size: 14px; padding: 8px; margin-top: 15px; }
+        .btn-logout:hover { background-color: #4b5563; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- Texto da Marca visível em todas as telas -->
+    <div class="brand-header">Marca</div>
+
     <!-- 1. TELA DE LOGIN DO SITE -->
     <div id="login-screen">
-        <h2>Acesso Restrito</h2>
-        <p>Insira a senha do site para acessar o conteúdo:</p>
+        <p style="text-align: center;">Insira a senha do site para acessar o conteúdo:</p>
         <input type="password" id="site-password" placeholder="Senha do Site">
         <button onclick="checkSiteLogin()">Entrar</button>
-        <p id="login-error" style="color: red; display: none;">Senha incorreta!</p>
+        <p id="login-error" style="color: red; text-align: center; display: none;">Senha incorreta!</p>
     </div>
 
     <!-- 2. CONTEÚDO PRINCIPAL (SÓ APARECE APÓS LOGIN) -->
@@ -56,19 +76,30 @@
             <!-- Bloqueio interno da aba -->
             <div id="admin-auth">
                 <h3>Área de Gerenciamento</h3>
-                <p>Insira a senha administrativa para liberar esta aba:</p>
+                <p>Insira a senha administrativa para liberar as ferramentas:</p>
                 <input type="password" id="admin-password" placeholder="Senha Administrativa">
-                <button onclick="checkAdminLogin()">Liberar Aba</button>
+                <button onclick="checkAdminLogin()">Liberar Gerenciador</button>
                 <p id="admin-error" style="color: red; display: none;">Senha admin incorreta!</p>
             </div>
 
-            <!-- Formulário de cadastro (oculto até por a senha do admin) -->
-            <div id="admin-form" class="hidden">
-                <h3>Adicionar Novo Item</h3>
-                <input type="text" id="item-name" placeholder="Nome do Item (ex: Suco de Maçã)">
-                <input type="url" id="item-url" placeholder="Link de Redirecionamento (https://...)">
-                <button onclick="addItem()">Adicionar ao Banco de Dados</button>
-                <p id="success-msg" style="color: green; display: none;">Item adicionado com sucesso!</p>
+            <!-- Painel Administrativo Completo -->
+            <div id="admin-panel" class="hidden">
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <h3 style="margin-top:0;">Adicionar Novo Item</h3>
+                    <input type="text" id="item-name" placeholder="Nome do Item (ex: Suco de Maçã)">
+                    <input type="url" id="item-url" placeholder="Link de Redirecionamento (https://...)">
+                    <button onclick="addItem()">Adicionar ao Banco de Dados</button>
+                    <p id="success-msg" style="color: green; display: none; font-weight: bold;">Item adicionado com sucesso!</p>
+                </div>
+
+                <!-- SEÇÃO ADICIONADA: GERENCIAR E EXCLUIR ITENS -->
+                <div class="manage-list">
+                    <h3>Itens Cadastrados (Clique para Excluir)</h3>
+                    <div id="manage-items-container"></div>
+                </div>
+
+                <!-- SEÇÃO ADICIONADA: SEGURANÇA (SAIR DA SESSÃO ADMIN) -->
+                <button class="btn-logout" onclick="logoutAdmin()">🔒 Bloquear Aba "Aqui"</button>
             </div>
         </div>
     </div>
@@ -76,17 +107,16 @@
 
 <script>
     // ================= CONFIGURAÇÃO DE SENHAS =================
-    const SENHA_DO_SITE = "1234";  // Altere aqui a senha para ENTRAR no site
-    const SENHA_DA_ABA_AQUI = "admin987"; // Altere aqui a senha para LIBERAR a aba "Aqui"
+    const SENHA_DO_SITE = "1234";  
+    const SENHA_DA_ABA_AQUI = "admin987"; 
 
-    // Dados iniciais padrão do site (Caso queira deixar alguns salvos direto no código)
+    // Banco de dados inicial padrão
     const defaultItems = [
         { name: "Suco de Maçã", url: "https://google.com" },
         { name: "Suco de Laranja", url: "https://google.com" },
         { name: "Bolo de Cenoura", url: "https://google.com" }
     ];
 
-    // Carrega os itens salvos no navegador ou usa os padrões acima
     let itemsDatabase = JSON.parse(localStorage.getItem('site_items')) || defaultItems;
 
     // 1. Controle de Login do Site
@@ -110,9 +140,13 @@
         if (tab === 'busca') {
             document.getElementById('btn-busca').classList.add('active');
             document.getElementById('tab-busca').classList.remove('hidden');
+            // Reseta a barra de pesquisa ao voltar para ela
+            document.getElementById('search-input').value = "";
+            document.getElementById('results-container').classList.add('hidden');
         } else {
             document.getElementById('btn-admin').classList.add('active');
             document.getElementById('tab-admin').classList.remove('hidden');
+            renderManageItems(); // Atualiza a lista de exclusão toda vez que abre a aba
         }
     }
 
@@ -121,10 +155,18 @@
         const input = document.getElementById('admin-password').value;
         if (input === SENHA_DA_ABA_AQUI) {
             document.getElementById('admin-auth').classList.add('hidden');
-            document.getElementById('admin-form').classList.remove('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('admin-password').value = "";
+            document.getElementById('admin-error').style.display = 'none';
         } else {
             document.getElementById('admin-error').style.display = 'block';
         }
+    }
+
+    // Função Adicionada: Bloquear o painel administrativo de novo
+    function logoutAdmin() {
+        document.getElementById('admin-panel').classList.add('hidden');
+        document.getElementById('admin-auth').classList.remove('hidden');
     }
 
     // 4. Sistema de Busca por digitação (Autocomplete)
@@ -138,7 +180,6 @@
             return;
         }
 
-        // Filtra os itens que possuem o termo digitado no nome
         const filtered = itemsDatabase.filter(item => item.name.toLowerCase().includes(query));
 
         if (filtered.length > 0) {
@@ -146,41 +187,10 @@
             filtered.forEach(item => {
                 const link = document.createElement('a');
                 link.href = item.url;
-                link.target = "_blank"; // Abre em uma nova aba
+                link.target = "_blank"; 
                 link.className = "result-item";
                 link.textContent = item.name;
                 container.appendChild(link);
             });
         } else {
             container.classList.remove('hidden');
-            container.innerHTML = "<div class='result-item' style='color:gray; cursor:default;'>Nenhum item encontrado</div>";
-        }
-    }
-
-    // 5. Adicionar novo item de forma dinâmica
-    function addItem() {
-        const name = document.getElementById('item-name').value.trim();
-        const url = document.getElementById('item-url').value.trim();
-        const successMsg = document.getElementById('success-msg');
-
-        if (name === "" || url === "") {
-            alert("Por favor, preencha o nome e o link!");
-            return;
-        }
-
-        // Adiciona o novo objeto à nossa lista
-        itemsDatabase.push({ name: name, url: url });
-        
-        // Salva permanentemente no navegador do usuário
-        localStorage.setItem('site_items', JSON.stringify(itemsDatabase));
-
-        // Limpa os campos e avisa que deu certo
-        document.getElementById('item-name').value = "";
-        document.getElementById('item-url').value = "";
-        successMsg.style.display = 'block';
-        setTimeout(() => successMsg.style.display = 'none', 3000);
-    }
-</script>
-
-</body>
-</html>
