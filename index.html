@@ -3,182 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Portal Privado</title>
+    <title>Sistema de Busca e Cadastro</title>
     <style>
-        :root {
-            --primary: #4f46e5;
-            --bg: #f3f4f6;
-            --card: #ffffff;
-            --text: #1f2937;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 600px; background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .hidden { display: none !important; }
-        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        button { background-color: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #4338ca; }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
-        .tab-btn { background: none; color: #6b7280; border: none; padding: 10px; width: auto; margin: 0; cursor: pointer; }
-        .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
-        .results-box { border: 1px solid #e5e7eb; border-radius: 6px; max-height: 200px; overflow-y: auto; background: white; margin-top: -5px; }
-        .result-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f3f4f6; text-decoration: none; color: var(--text); display: block; }
-        .result-item:hover { background-color: #f3f4f6; color: var(--primary); }
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f4f4f9; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        .screen { display: none; }
+        .active { display: block; }
+        h2 { color: #333; margin-top: 0; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #0056b3; }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        .tab-btn { background: #e9e9ed; color: #333; padding: 8px 16px; border-radius: 4px; cursor: pointer; border: none; width: auto; margin: 0; }
+        .tab-btn.active-tab { background: #007bff; color: white; }
+        .results-box { border: 1px solid #ddd; border-radius: 4px; max-height: 200px; overflow-y: auto; display: none; background: white; }
+        .result-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; text-decoration: none; color: #333; display: block; }
+        .result-item:hover { background-color: #f0f0f0; }
+        .error { color: red; font-size: 14px; display: none; }
+        .success { color: green; font-size: 14px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 1. TELA DE LOGIN DO SITE -->
-    <div id="login-screen">
-        <h2>Acesso Restrito</h2>
-        <p>Insira a senha do site para acessar o conteúdo:</p>
-        <input type="password" id="site-password" placeholder="Senha do Site">
-        <button onclick="checkSiteLogin()">Entrar</button>
-        <p id="login-error" style="color: red; display: none;">Senha incorreta!</p>
+    <!-- 1. TELA DE LOGIN PRINCIPAL -->
+    <div id="loginScreen" class="screen active">
+        <h2>Acesso ao Sistema</h2>
+        <input type="password" id="mainPassword" placeholder="Digite a senha de acesso">
+        <p id="loginError" class="error">Senha incorreta!</p>
+        <button onclick="checkMainLogin()">Entrar</button>
     </div>
 
-    <!-- 2. CONTEÚDO PRINCIPAL (SÓ APARECE APÓS LOGIN) -->
-    <div id="main-content" class="hidden">
+    <!-- TELA DO SISTEMA (PÓS LOGIN) -->
+    <div id="systemScreen" class="screen">
+        <!-- Abas de Navegação -->
         <div class="nav-tabs">
-            <button class="tab-btn active" id="btn-busca" onclick="switchTab('busca')">🔍 Pesquisar</button>
-            <button class="tab-btn" id="btn-admin" onclick="switchTab('admin')">📌 Aqui</button>
+            <button id="tabBusca" class="tab-btn active-tab" onclick="switchTab('busca')">Buscar</button>
+            <button id="tabAqui" class="tab-btn" onclick="switchTab('aqui')">Aqui</button>
         </div>
 
-        <!-- ABA DE PESQUISA -->
-        <div id="tab-busca">
-            <h3>O que você procura?</h3>
-            <input type="text" id="search-input" placeholder="Digite para pesquisar... (ex: Suco)" oninput="filterResults()">
-            <div id="results-container" class="results-box hidden"></div>
+        <!-- 2. ABA DE BUSCA -->
+        <div id="contentBusca" class="tab-content">
+            <h2>Pesquisar Itens</h2>
+            <input type="text" id="searchInp" placeholder="Digite para buscar (ex: Suco)..." oninput="triggerSearch()">
+            <div id="resultsContainer" class="results-box"></div>
         </div>
 
-        <!-- ABA "AQUI" (GERENCIADOR PROTEGIDO) -->
-        <div id="tab-admin" class="hidden">
-            <!-- Bloqueio interno da aba -->
-            <div id="admin-auth">
-                <h3>Área de Gerenciamento</h3>
-                <p>Insira a senha administrativa para liberar esta aba:</p>
-                <input type="password" id="admin-password" placeholder="Senha Administrativa">
-                <button onclick="checkAdminLogin()">Liberar Aba</button>
-                <p id="admin-error" style="color: red; display: none;">Senha admin incorreta!</p>
+        <!-- 3. ABA "AQUI" (PROTEGIDA POR SENHA) -->
+        <div id="contentAqui" class="tab-content" style="display: none;">
+            <h2>Área de Gerenciamento</h2>
+            
+            <!-- Validação interna da aba Aqui -->
+            <div id="aquiAuthForm">
+                <p>Confirme a senha para liberar o cadastro:</p>
+                <input type="password" id="aquiPassword" placeholder="Digite a senha de administrador">
+                <p id="aquiError" class="error">Senha incorreta!</p>
+                <button onclick="checkAquiLogin()">Liberar Aba</button>
             </div>
 
-            <!-- Formulário de cadastro (oculto até por a senha do admin) -->
-            <div id="admin-form" class="hidden">
+            <!-- Painel de cadastro oculto até digitar a senha -->
+            <div id="aquiPanel" style="display: none;">
                 <h3>Adicionar Novo Item</h3>
-                <input type="text" id="item-name" placeholder="Nome do Item (ex: Suco de Maçã)">
-                <input type="url" id="item-url" placeholder="Link de Redirecionamento (https://...)">
-                <button onclick="addItem()">Adicionar ao Banco de Dados</button>
-                <p id="success-msg" style="color: green; display: none;">Item adicionado com sucesso!</p>
+                <input type="text" id="newItemName" placeholder="Nome do item (ex: Suco de Laranja)">
+                <input type="url" id="newItemUrl" placeholder="Link de redirecionamento (http://...)">
+                <p id="addError" class="error">Preencha todos os campos corretamente!</p>
+                <p id="addSuccess" class="success">Item adicionado com sucesso!</p>
+                <button onclick="addNewItem()">Cadastrar Item</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ================= CONFIGURAÇÃO DE SENHAS =================
-    const SENHA_DO_SITE = "1234";  // Altere aqui a senha para ENTRAR no site
-    const SENHA_DA_ABA_AQUI = "admin987"; // Altere aqui a senha para LIBERAR a aba "Aqui"
+    // ==========================================
+    // CONFIGURAÇÕES DE SENHA E DADOS INICIAIS
+    // ==========================================
+    const ACESS_PASSWORD = "123"; // Altere aqui a senha do site e da aba "Aqui"
 
-    // Dados iniciais padrão do site (Caso queira deixar alguns salvos direto no código)
-    const defaultItems = [
+    // Itens iniciais do sistema
+    let database = [
         { name: "Suco de Maçã", url: "https://google.com" },
         { name: "Suco de Laranja", url: "https://google.com" },
-        { name: "Bolo de Cenoura", url: "https://google.com" }
+        { name: "Suco de Uva", url: "https://google.com" },
+        { name: "Bolo de Chocolate", url: "https://google.com" }
     ];
 
-    // Carrega os itens salvos no navegador ou usa os padrões acima
-    let itemsDatabase = JSON.parse(localStorage.getItem('site_items')) || defaultItems;
-
-    // 1. Controle de Login do Site
-    function checkSiteLogin() {
-        const input = document.getElementById('site-password').value;
-        if (input === SENHA_DO_SITE) {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
+    // ==========================================
+    // LÓGICA DE CONTROLE DE TELAS E LOGIN
+    // ==========================================
+    function checkMainLogin() {
+        const input = document.getElementById('mainPassword').value;
+        if (input === ACESS_PASSWORD) {
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('systemScreen').classList.add('active');
         } else {
-            document.getElementById('login-error').style.display = 'block';
+            document.getElementById('loginError').style.display = 'block';
         }
     }
 
-    // 2. Navegação entre as Abas
+    function checkAquiLogin() {
+        const input = document.getElementById('aquiPassword').value;
+        if (input === ACESS_PASSWORD) {
+            document.getElementById('aquiAuthForm').style.display = 'none';
+            document.getElementById('aquiPanel').style.display = 'block';
+        } else {
+            document.getElementById('aquiError').style.display = 'block';
+        }
+    }
+
     function switchTab(tab) {
-        document.getElementById('btn-busca').classList.remove('active');
-        document.getElementById('btn-admin').classList.remove('active');
-        document.getElementById('tab-busca').classList.add('hidden');
-        document.getElementById('tab-admin').classList.add('hidden');
-
-        if (tab === 'busca') {
-            document.getElementById('btn-busca').classList.add('active');
-            document.getElementById('tab-busca').classList.remove('hidden');
-        } else {
-            document.getElementById('btn-admin').classList.add('active');
-            document.getElementById('tab-admin').classList.remove('hidden');
-        }
+        document.getElementById('contentBusca').style.display = tab === 'busca' ? 'block' : 'none';
+        document.getElementById('contentAqui').style.display = tab === 'aqui' ? 'block' : 'none';
+        
+        document.getElementById('tabBusca').classList.toggle('active-tab', tab === 'busca');
+        document.getElementById('tabAqui').classList.toggle('active-tab', tab === 'aqui');
     }
 
-    // 3. Controle de Login da Aba "Aqui"
-    function checkAdminLogin() {
-        const input = document.getElementById('admin-password').value;
-        if (input === SENHA_DA_ABA_AQUI) {
-            document.getElementById('admin-auth').classList.add('hidden');
-            document.getElementById('admin-form').classList.remove('hidden');
-        } else {
-            document.getElementById('admin-error').style.display = 'block';
-        }
-    }
-
-    // 4. Sistema de Busca por digitação (Autocomplete)
-    function filterResults() {
-        const query = document.getElementById('search-input').value.toLowerCase().trim();
-        const container = document.getElementById('results-container');
+    // ==========================================
+    // LÓGICA DO SISTEMA DE BUSCA DINÂMICA
+    // ==========================================
+    function triggerSearch() {
+        const query = document.getElementById('searchInp').value.toLowerCase().trim();
+        const container = document.getElementById('resultsContainer');
         container.innerHTML = "";
 
         if (query === "") {
-            container.classList.add('hidden');
+            container.style.display = "none";
             return;
         }
 
-        // Filtra os itens que possuem o termo digitado no nome
-        const filtered = itemsDatabase.filter(item => item.name.toLowerCase().includes(query));
+        // Filtra os itens que contém o termo digitado
+        const filtered = database.filter(item => item.name.toLowerCase().includes(query));
 
         if (filtered.length > 0) {
-            container.classList.remove('hidden');
             filtered.forEach(item => {
-                const link = document.createElement('a');
-                link.href = item.url;
-                link.target = "_blank"; // Abre em uma nova aba
-                link.className = "result-item";
-                link.textContent = item.name;
-                container.appendChild(link);
+                const a = document.createElement('a');
+                a.href = item.url;
+                a.target = "_blank"; // Abre o link em uma nova aba
+                a.className = "result-item";
+                a.textContent = item.name;
+                container.appendChild(a);
             });
+            container.style.display = "block";
         } else {
-            container.classList.remove('hidden');
-            container.innerHTML = "<div class='result-item' style='color:gray; cursor:default;'>Nenhum item encontrado</div>";
+            container.style.display = "none";
         }
     }
 
-    // 5. Adicionar novo item de forma dinâmica
-    function addItem() {
-        const name = document.getElementById('item-name').value.trim();
-        const url = document.getElementById('item-url').value.trim();
-        const successMsg = document.getElementById('success-msg');
+    // ==========================================
+    // LÓGICA DE CADASTRO DE NOVOS ITENS
+    // ==========================================
+    function addNewItem() {
+        const nameInp = document.getElementById('newItemName').value.trim();
+        const urlInp = document.getElementById('newItemUrl').value.trim();
+        const errorMsg = document.getElementById('addError');
+        const successMsg = document.getElementById('addSuccess');
 
-        if (name === "" || url === "") {
-            alert("Por favor, preencha o nome e o link!");
+        errorMsg.style.display = 'none';
+        successMsg.style.display = 'none';
+
+        if (nameInp === "" || urlInp === "") {
+            errorMsg.style.display = 'block';
             return;
         }
 
-        // Adiciona o novo objeto à nossa lista
-        itemsDatabase.push({ name: name, url: url });
-        
-        // Salva permanentemente no navegador do usuário
-        localStorage.setItem('site_items', JSON.stringify(itemsDatabase));
+        // Adiciona o novo objeto variado na lista
+        database.push({ name: nameInp, url: urlInp });
 
-        // Limpa os campos e avisa que deu certo
-        document.getElementById('item-name').value = "";
-        document.getElementById('item-url').value = "";
+        // Limpa os campos e exibe sucesso
+        document.getElementById('newItemName').value = "";
+        document.getElementById('newItemUrl').value = "";
         successMsg.style.display = 'block';
-        setTimeout(() => successMsg.style.display = 'none', 3000);
     }
 </script>
 
