@@ -8,7 +8,7 @@
         * { box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #f4f4f9; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         
-        /* NOVO: Estilo para o título da Marca */
+        /* Título da Marca */
         .brand-header { text-align: center; margin-bottom: 20px; color: #333; font-size: 32px; font-weight: bold; letter-spacing: 1px; }
         
         .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
@@ -27,7 +27,7 @@
         .error { color: red; font-size: 14px; display: none; }
         .success { color: green; font-size: 14px; display: none; }
         
-        /* NOVO: Estilos para a lista de gerenciamento (Editar/Excluir) */
+        /* Lista de gerenciamento (Editar/Excluir) */
         .item-list { margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px; max-height: 250px; overflow-y: auto; }
         .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; }
         .manage-item-buttons { display: flex; gap: 5px; }
@@ -40,16 +40,16 @@
 </head>
 <body>
 
-<!-- NOVO: Local superior com o nome da Marca -->
+<!-- Local superior com o nome da Marca -->
 <div class="brand-header">Marca</div>
 
 <div class="container">
     <!-- 1. TELA DE LOGIN PRINCIPAL -->
     <div id="loginScreen" class="screen active">
         <h2>Acesso ao Sistema</h2>
-        <input type="password" id="mainPassword" placeholder="Digite a senha de acesso">
+        <input type="password" id="inputMainPassword" placeholder="Digite a senha de acesso">
         <p id="loginError" class="error">Senha incorreta!</p>
-        <button onclick="checkMainLogin()">Entrar</button>
+        <button onclick="efetuarLoginPrincipal()">Entrar</button>
     </div>
 
     <!-- TELA DO SISTEMA (PÓS LOGIN) -->
@@ -74,15 +74,15 @@
             <!-- Validação interna da aba Aqui -->
             <div id="aquiAuthForm">
                 <p>Confirme a senha para liberar o painel:</p>
-                <input type="password" id="aquiPassword" placeholder="Digite a senha de administrador">
+                <input type="password" id="inputAquiPassword" placeholder="Digite a senha de administrador">
                 <p id="aquiError" class="error">Senha incorreta!</p>
-                <button onclick="checkAquiLogin()">Liberar Aba</button>
+                <button onclick="efetuarLoginAqui()">Liberar Aba</button>
             </div>
 
             <!-- Painel completo oculto até digitar a senha -->
             <div id="aquiPanel" style="display: none;">
                 
-                <!-- Formulário de Edição (Aparece dinamicamente ao clicar em Editar) -->
+                <!-- Formulário de Edição -->
                 <div id="editFormBox" class="edit-form-box" style="display: none;">
                     <h3>Editar Item</h3>
                     <input type="hidden" id="editItemIndex">
@@ -102,7 +102,7 @@
                     <button onclick="addNewItem()">Cadastrar Item</button>
                 </div>
 
-                <!-- NOVO: Lista de itens cadastrados com botões de Editar e Excluir -->
+                <!-- Lista de itens cadastrados com botões de Editar e Excluir -->
                 <h3>Itens Cadastrados</h3>
                 <div id="managementItemList" class="item-list"></div>
             </div>
@@ -111,7 +111,7 @@
 </div>
 
 <script>
-    // A senha padrão continua sendo "123"
+    // Senha de acesso única para o site e aba "Aqui"
     const ACESS_PASSWORD = "123"; 
 
     // Lista inicial de dados
@@ -122,24 +122,32 @@
         { name: "Bolo de Chocolate", url: "https://google.com" }
     ];
 
-    function checkMainLogin() {
-        const input = document.getElementById('mainPassword').value;
-        if (input === ACESS_PASSWORD) {
+    // CORREÇÃO: Função de login principal reestruturada
+    function efetuarLoginPrincipal() {
+        const campoSenha = document.getElementById('inputMainPassword').value;
+        const msgErro = document.getElementById('loginError');
+        
+        if (campoSenha === ACESS_PASSWORD) {
+            msgErro.style.display = 'none';
             document.getElementById('loginScreen').classList.remove('active');
             document.getElementById('systemScreen').classList.add('active');
         } else {
-            document.getElementById('loginError').style.display = 'block';
+            msgErro.style.display = 'block';
         }
     }
 
-    function checkAquiLogin() {
-        const input = document.getElementById('aquiPassword').value;
-        if (input === ACESS_PASSWORD) {
+    // CORREÇÃO: Função de login da aba Aqui reestruturada
+    function efetuarLoginAqui() {
+        const campoSenhaAqui = document.getElementById('inputAquiPassword').value;
+        const msgErroAqui = document.getElementById('aquiError');
+        
+        if (campoSenhaAqui === ACESS_PASSWORD) {
+            msgErroAqui.style.display = 'none';
             document.getElementById('aquiAuthForm').style.display = 'none';
             document.getElementById('aquiPanel').style.display = 'block';
-            renderManagementList(); // Carrega a lista de exclusão/edição
+            renderManagementList(); 
         } else {
-            document.getElementById('aquiError').style.display = 'block';
+            msgErroAqui.style.display = 'block';
         }
     }
 
@@ -148,7 +156,7 @@
         document.getElementById('contentAqui').style.display = tab === 'aqui' ? 'block' : 'none';
         document.getElementById('tabBusca').classList.toggle('active-tab', tab === 'busca');
         document.getElementById('tabAqui').classList.toggle('active-tab', tab === 'aqui');
-        cancelItemEdit(); // Fecha o formulário de edição se mudar de aba
+        cancelItemEdit(); 
     }
 
     function triggerSearch() {
@@ -193,7 +201,3 @@
         }
 
         database.push({ name: nameInp, url: urlInp });
-        document.getElementById('newItemName').value = "";
-        document.getElementById('newItemUrl').value = "";
-        
-        successMsg.style.display = 'block';
