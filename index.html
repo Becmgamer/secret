@@ -114,15 +114,24 @@
     // Senha de acesso única para o site e aba "Aqui"
     const ACESS_PASSWORD = "123"; 
 
-    // Lista inicial de dados
-    let database = [
-        { name: "Suco de Maçã", url: "https://google.com" },
-        { name: "Suco de Laranja", url: "https://google.com" },
-        { name: "Suco de Uva", url: "https://google.com" },
-        { name: "Bolo de Chocolate", url: "https://google.com" }
-    ];
+    // MESCLADO: Carrega dados salvos anteriormente ou usa a lista inicial padrão
+    let database = JSON.parse(localStorage.getItem('site_database'));
+    
+    if (!database) {
+        database = [
+            { name: "Suco de Maçã", url: "https://google.com" },
+            { name: "Suco de Laranja", url: "https://google.com" },
+            { name: "Suco de Uva", url: "https://google.com" },
+            { name: "Bolo de Chocolate", url: "https://google.com" }
+        ];
+        salvarNoLocalStorage();
+    }
 
-    // CORREÇÃO: Função de login principal reestruturada
+    // Função auxiliar para gravar alterações na memória do navegador
+    function salvarNoLocalStorage() {
+        localStorage.setItem('site_database', JSON.stringify(database));
+    }
+
     function efetuarLoginPrincipal() {
         const campoSenha = document.getElementById('inputMainPassword').value;
         const msgErro = document.getElementById('loginError');
@@ -136,7 +145,6 @@
         }
     }
 
-    // CORREÇÃO: Função de login da aba Aqui reestruturada
     function efetuarLoginAqui() {
         const campoSenhaAqui = document.getElementById('inputAquiPassword').value;
         const msgErroAqui = document.getElementById('aquiError');
@@ -186,18 +194,8 @@
         }
     }
 
+    // MESCLADO: Cadastra e salva na memória
     function addNewItem() {
         const nameInp = document.getElementById('newItemName').value.trim();
         const urlInp = document.getElementById('newItemUrl').value.trim();
         const errorMsg = document.getElementById('addError');
-        const successMsg = document.getElementById('addSuccess');
-
-        errorMsg.style.display = 'none';
-        successMsg.style.display = 'none';
-
-        if (nameInp === "" || urlInp === "") {
-            errorMsg.style.display = 'block';
-            return;
-        }
-
-        database.push({ name: nameInp, url: urlInp });
