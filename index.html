@@ -39,7 +39,6 @@
         .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #e5e7eb; margin-bottom: 8px; border-radius: 6px; background: #f9fafb; }
         .item-text { font-size: 15px; font-weight: 600; color: var(--text); }
         
-        /* BOTÃO DELETAR COLOCOADO CORRETAMENTE AO LADO */
         .btn-delete { background-color: var(--danger); width: auto; padding: 8px 16px; margin: 0; font-size: 14px; border-radius: 4px; }
         .btn-delete:hover { background-color: #b91c1c; }
         
@@ -53,12 +52,14 @@
     <div class="brand-logo">Marca</div>
 
     <div class="content-body">
-        <!-- 1. TELA DE LOGIN DO SITE -->
+        <!-- 1. TELA DE LOGIN DO SITE (CORRIGIDA COM FORMULÁRIO) -->
         <div id="login-screen">
             <h3 style="text-align: center; margin-top: 20px;">Acesso Restrito</h3>
             <p style="text-align: center;">Insira a senha do site para acessar o conteúdo:</p>
-            <input type="password" id="site-password" placeholder="Senha do Site">
-            <button type="button" onclick="checkSiteLogin()">Entrar</button>
+            <form onsubmit="checkSiteLogin(event)">
+                <input type="password" id="site-password" placeholder="Senha do Site" required>
+                <button type="submit">Entrar</button>
+            </form>
             <p id="login-error" style="color: red; text-align: center; display: none;">Senha incorreta!</p>
         </div>
 
@@ -78,11 +79,14 @@
 
             <!-- ABA "AQUI" -->
             <div id="tab-admin" class="hidden">
+                <!-- FORMULÁRIO DE LOGIN DA ABA ADMIN (CORRIGIDO) -->
                 <div id="admin-auth">
                     <h3>Área de Gerenciamento</h3>
                     <p>Insira a senha administrativa para liberar as ferramentas:</p>
-                    <input type="password" id="admin-password" placeholder="Senha Administrativa">
-                    <button type="button" onclick="checkAdminLogin()">Liberar Gerenciador</button>
+                    <form onsubmit="checkAdminLogin(event)">
+                        <input type="password" id="admin-password" placeholder="Senha Administrativa" required>
+                        <button type="submit">Liberar Gerenciador</button>
+                    </form>
                     <p id="admin-error" style="color: red; display: none;">Senha admin incorreta!</p>
                 </div>
 
@@ -90,9 +94,11 @@
                 <div id="admin-panel" class="hidden">
                     <div style="background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
                         <h3 style="margin-top:0;">Adicionar Novo Item</h3>
-                        <input type="text" id="item-name" placeholder="Nome do Item (ex: Suco de Maçã)">
-                        <input type="url" id="item-url" placeholder="Link de Redirecionamento">
-                        <button type="button" onclick="addItem()">Adicionar ao Banco de Dados</button>
+                        <form onsubmit="addItem(event)">
+                            <input type="text" id="item-name" placeholder="Nome do Item (ex: Suco de Maçã)" required>
+                            <input type="url" id="item-url" placeholder="Link de Redirecionamento" required>
+                            <button type="submit">Adicionar ao Banco de Dados</button>
+                        </form>
                         <p id="success-msg" style="color: green; display: none; font-weight: bold;">Item adicionado com sucesso!</p>
                     </div>
 
@@ -114,7 +120,7 @@
     const SENHA_DO_SITE = "1234";  
     const SENHA_DA_ABA_AQUI = "admin987"; 
 
-    // Itens que já vêm salvos por padrão
+    // Itens padrões
     const defaultItems = [
         { name: "Suco de Maçã", url: "https://google.com" },
         { name: "Suco de Laranja", url: "https://google.com" },
@@ -123,8 +129,9 @@
 
     let itemsDatabase = JSON.parse(localStorage.getItem('site_items')) || defaultItems;
 
-    // Login Geral do Site
-    function checkSiteLogin() {
+    // Login Geral do Site (Ajustado com preventDefault)
+    function checkSiteLogin(event) {
+        event.preventDefault(); // Evita que a página recarregue e quebre o JS
         const input = document.getElementById('site-password').value;
         if (input === SENHA_DO_SITE) {
             document.getElementById('login-screen').classList.add('hidden');
@@ -149,31 +156,31 @@
         } else {
             document.getElementById('btn-admin').classList.add('active');
             document.getElementById('tab-admin').classList.remove('hidden');
-            renderManageItems(); // Renderiza os botões de excluir na hora do clique
+            renderManageItems(); 
         }
     }
 
-    // Login da Aba Administrativa "Aqui"
-    function checkAdminLogin() {
+    // Login da Aba Administrativa "Aqui" (Ajustado com preventDefault)
+    function checkAdminLogin(event) {
+        event.preventDefault(); // Evita recarregamento de página
         const input = document.getElementById('admin-password').value;
         if (input === SENHA_DA_ABA_AQUI) {
             document.getElementById('admin-auth').classList.add('hidden');
             document.getElementById('admin-panel').classList.remove('hidden');
             document.getElementById('admin-password').value = "";
             document.getElementById('admin-error').style.display = 'none';
-            renderManageItems(); // Renderiza a lista com os botões excluir lado a lado imediatamente
+            renderManageItems(); 
         } else {
             document.getElementById('admin-error').style.display = 'block';
         }
     }
 
-    // Sair do painel administrativo
     function logoutAdmin() {
         document.getElementById('admin-panel').classList.add('hidden');
         document.getElementById('admin-auth').classList.remove('hidden');
     }
 
-    // Sistema de barra de busca (Filtro por digitação)
+    // Filtro de busca
     function filterResults() {
         const query = document.getElementById('search-input').value.toLowerCase().trim();
         const container = document.getElementById('results-container');
@@ -185,10 +192,3 @@
         }
 
         const filtered = itemsDatabase.filter(item => item.name.toLowerCase().includes(query));
-
-        if (filtered.length > 0) {
-            container.classList.remove('hidden');
-            filtered.forEach(item => {
-                const link = document.createElement('a');
-                link.href = item.url;
-                link.target = "_blank"; 
