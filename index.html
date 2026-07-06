@@ -6,11 +6,15 @@
     <title>Sistema de Busca e Cadastro</title>
     <style>
         * { box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background-color: #f4f4f9; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        body { background-color: #f4f4f9; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        /* NOVO: Estilo para o título da Marca */
+        .brand-header { text-align: center; margin-bottom: 20px; color: #333; font-size: 32px; font-weight: bold; letter-spacing: 1px; }
+        
         .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
         .screen { display: none; }
         .active { display: block; }
-        h2 { color: #333; margin-top: 0; }
+        h2, h3 { color: #333; margin-top: 0; }
         input, button { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
         button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background-color: #0056b3; }
@@ -22,9 +26,22 @@
         .result-item:hover { background-color: #f0f0f0; }
         .error { color: red; font-size: 14px; display: none; }
         .success { color: green; font-size: 14px; display: none; }
+        
+        /* NOVO: Estilos para a lista de gerenciamento (Editar/Excluir) */
+        .item-list { margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px; max-height: 250px; overflow-y: auto; }
+        .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .manage-item-buttons { display: flex; gap: 5px; }
+        .btn-edit { background-color: #ffc107; color: #000; width: auto; padding: 5px 10px; margin: 0; font-size: 12px; }
+        .btn-edit:hover { background-color: #e0a800; }
+        .btn-delete { background-color: #dc3545; color: white; width: auto; padding: 5px 10px; margin: 0; font-size: 12px; }
+        .btn-delete:hover { background-color: #bd2130; }
+        .edit-form-box { background: #f8f9fa; border: 1px solid #ffc107; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
+
+<!-- NOVO: Local superior com o nome da Marca -->
+<div class="brand-header">Marca</div>
 
 <div class="container">
     <!-- 1. TELA DE LOGIN PRINCIPAL -->
@@ -56,32 +73,48 @@
             
             <!-- Validação interna da aba Aqui -->
             <div id="aquiAuthForm">
-                <p>Confirme a senha para liberar o cadastro:</p>
+                <p>Confirme a senha para liberar o painel:</p>
                 <input type="password" id="aquiPassword" placeholder="Digite a senha de administrador">
                 <p id="aquiError" class="error">Senha incorreta!</p>
                 <button onclick="checkAquiLogin()">Liberar Aba</button>
             </div>
 
-            <!-- Painel de cadastro oculto até digitar a senha -->
+            <!-- Painel completo oculto até digitar a senha -->
             <div id="aquiPanel" style="display: none;">
-                <h3>Adicionar Novo Item</h3>
-                <input type="text" id="newItemName" placeholder="Nome do item (ex: Suco de Laranja)">
-                <input type="url" id="newItemUrl" placeholder="Link de redirecionamento (http://...)">
-                <p id="addError" class="error">Preencha todos os campos corretamente!</p>
-                <p id="addSuccess" class="success">Item adicionado com sucesso!</p>
-                <button onclick="addNewItem()">Cadastrar Item</button>
+                
+                <!-- Formulário de Edição (Aparece dinamicamente ao clicar em Editar) -->
+                <div id="editFormBox" class="edit-form-box" style="display: none;">
+                    <h3>Editar Item</h3>
+                    <input type="hidden" id="editItemIndex">
+                    <input type="text" id="editItemName" placeholder="Novo nome do item">
+                    <input type="url" id="editItemUrl" placeholder="Novo link de redirecionamento">
+                    <button onclick="saveItemEdit()" style="background-color: #28a745;">Salvar Alterações</button>
+                    <button onclick="cancelItemEdit()" style="background-color: #6c757d; margin-top: 0;">Cancelar</button>
+                </div>
+
+                <!-- Formulário de Cadastro -->
+                <div id="addFormBox">
+                    <h3>Adicionar Novo Item</h3>
+                    <input type="text" id="newItemName" placeholder="Nome do item (ex: Suco de Laranja)">
+                    <input type="url" id="newItemUrl" placeholder="Link de redirecionamento (http://...)">
+                    <p id="addError" class="error">Preencha todos os campos corretamente!</p>
+                    <p id="addSuccess" class="success">Operação realizada com sucesso!</p>
+                    <button onclick="addNewItem()">Cadastrar Item</button>
+                </div>
+
+                <!-- NOVO: Lista de itens cadastrados com botões de Editar e Excluir -->
+                <h3>Itens Cadastrados</h3>
+                <div id="managementItemList" class="item-list"></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ==========================================
-    // CONFIGURAÇÕES DE SENHA E DADOS INICIAIS
-    // ==========================================
-    const ACESS_PASSWORD = "123"; // Altere aqui a senha do site e da aba "Aqui"
+    // A senha padrão continua sendo "123"
+    const ACESS_PASSWORD = "123"; 
 
-    // Itens iniciais do sistema
+    // Lista inicial de dados
     let database = [
         { name: "Suco de Maçã", url: "https://google.com" },
         { name: "Suco de Laranja", url: "https://google.com" },
@@ -89,9 +122,6 @@
         { name: "Bolo de Chocolate", url: "https://google.com" }
     ];
 
-    // ==========================================
-    // LÓGICA DE CONTROLE DE TELAS E LOGIN
-    // ==========================================
     function checkMainLogin() {
         const input = document.getElementById('mainPassword').value;
         if (input === ACESS_PASSWORD) {
@@ -107,6 +137,7 @@
         if (input === ACESS_PASSWORD) {
             document.getElementById('aquiAuthForm').style.display = 'none';
             document.getElementById('aquiPanel').style.display = 'block';
+            renderManagementList(); // Carrega a lista de exclusão/edição
         } else {
             document.getElementById('aquiError').style.display = 'block';
         }
@@ -115,14 +146,11 @@
     function switchTab(tab) {
         document.getElementById('contentBusca').style.display = tab === 'busca' ? 'block' : 'none';
         document.getElementById('contentAqui').style.display = tab === 'aqui' ? 'block' : 'none';
-        
         document.getElementById('tabBusca').classList.toggle('active-tab', tab === 'busca');
         document.getElementById('tabAqui').classList.toggle('active-tab', tab === 'aqui');
+        cancelItemEdit(); // Fecha o formulário de edição se mudar de aba
     }
 
-    // ==========================================
-    // LÓGICA DO SISTEMA DE BUSCA DINÂMICA
-    // ==========================================
     function triggerSearch() {
         const query = document.getElementById('searchInp').value.toLowerCase().trim();
         const container = document.getElementById('resultsContainer');
@@ -133,14 +161,13 @@
             return;
         }
 
-        // Filtra os itens que contém o termo digitado
         const filtered = database.filter(item => item.name.toLowerCase().includes(query));
 
         if (filtered.length > 0) {
             filtered.forEach(item => {
                 const a = document.createElement('a');
                 a.href = item.url;
-                a.target = "_blank"; // Abre o link em uma nova aba
+                a.target = "_blank";
                 a.className = "result-item";
                 a.textContent = item.name;
                 container.appendChild(a);
@@ -151,9 +178,6 @@
         }
     }
 
-    // ==========================================
-    // LÓGICA DE CADASTRO DE NOVOS ITENS
-    // ==========================================
     function addNewItem() {
         const nameInp = document.getElementById('newItemName').value.trim();
         const urlInp = document.getElementById('newItemUrl').value.trim();
@@ -168,15 +192,8 @@
             return;
         }
 
-        // Adiciona o novo objeto variado na lista
         database.push({ name: nameInp, url: urlInp });
-
-        // Limpa os campos e exibe sucesso
         document.getElementById('newItemName').value = "";
         document.getElementById('newItemUrl').value = "";
+        
         successMsg.style.display = 'block';
-    }
-</script>
-
-</body>
-</html>
